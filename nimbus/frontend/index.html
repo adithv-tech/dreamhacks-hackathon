@@ -4,175 +4,195 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nimbus — Autonomous Island Energy Management</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
   <div class="app">
-    <!-- ============================= HEADER ============================= -->
-    <header class="topbar">
-      <div class="brand">
+
+    <!-- ============================ NAV BAR ============================ -->
+    <header class="nav">
+      <div class="nav-brand">
         <div class="brand-mark">
-          <svg viewBox="0 0 40 40" width="40" height="40">
+          <svg viewBox="0 0 36 36" width="26" height="26" fill="none">
             <defs>
-              <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#22d3ee"/>
-                <stop offset="100%" stop-color="#6366f1"/>
+              <linearGradient id="ng" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#40c8ff"/><stop offset="100%" stop-color="#0a84ff"/>
               </linearGradient>
             </defs>
-            <circle cx="20" cy="20" r="17" fill="none" stroke="url(#grad)" stroke-width="2.5"/>
-            <circle cx="20" cy="20" r="8" fill="url(#grad)"/>
-            <path d="M20 3 v6 M20 31 v6 M3 20 h6 M31 20 h6" stroke="url(#grad)" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="18" cy="18" r="14" stroke="url(#ng)" stroke-width="2"/>
+            <circle cx="18" cy="18" r="6.5" fill="url(#ng)"/>
+            <path d="M18 3.5v4M18 28.5v4M3.5 18h4M28.5 18h4" stroke="url(#ng)" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
         <div class="brand-text">
-          <h1>NIMBUS</h1>
-          <p>Autonomous Island Energy Management</p>
+          <span class="brand-name">Nimbus</span>
+          <span class="brand-sub">Autonomous Island Energy</span>
         </div>
       </div>
 
-      <div class="topbar-right">
-        <div class="status-badge" id="statusBadge">
+      <div class="nav-center">
+        <div class="status-pill" id="statusBadge">
           <span class="status-dot"></span>
-          <span id="statusText">CONNECTING</span>
+          <span id="statusText">Connecting…</span>
         </div>
-        <div class="mode-chip">
-          <span class="chip-label">CONTROLLER</span>
-          <span id="controllerLabel">Nimbus</span>
+        <div class="event-chip" id="eventChip" hidden></div>
+      </div>
+
+      <div class="nav-right">
+        <div class="seg" role="group" aria-label="Controller">
+          <button class="seg-btn" data-ctrl="naive">Naive</button>
+          <button class="seg-btn" data-ctrl="reactive">Reactive</button>
+          <button class="seg-btn active" data-ctrl="nimbus">Nimbus</button>
         </div>
-        <button class="btn ghost" id="resetBtn" title="Reset island to a stable state">⟲ RESET</button>
+        <button class="reset-btn" id="resetBtn" title="Reset to a stable island">
+          <svg viewBox="0 0 16 16" width="15" height="15" fill="none"><path d="M8 2a6 6 0 1 0 5.2 3M8 2v3M8 2l3-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Reset</span>
+        </button>
       </div>
     </header>
 
-    <!-- ============================= EVENT BAR ========================== -->
-    <section class="event-bar">
-      <div class="event-bar-label">INJECT DISTURBANCE</div>
-      <div class="event-buttons">
-        <button class="btn event storm" data-event="storm">⛈ STORM</button>
-        <button class="btn event cloud" data-event="cloud_cover">☁ CLOUD COVER</button>
-        <button class="btn event wind" data-event="wind_drop">🌬 WIND DROP</button>
-        <button class="btn event surge" data-event="tourist_surge">👥 TOURIST SURGE</button>
-        <button class="btn event water" data-event="water_emergency">💧 WATER EMERGENCY</button>
-        <button class="btn event compound" data-event="compound_crisis">⚠ COMPOUND CRISIS</button>
-      </div>
-    </section>
+    <main class="content">
 
-    <!-- ============================= MAIN GRID ========================== -->
-    <div class="main-grid">
-      <!-- Left column -->
-      <div class="col col-left">
-        <!-- Gauges row -->
-        <div class="card gauges">
-          <div class="gauge" id="genGauge">
-            <div class="gauge-num" id="genNum">--</div>
-            <div class="gauge-label">GENERATION <span class="unit">kW</span></div>
+      <!-- ======================== OVERVIEW HERO ======================== -->
+      <section class="hero">
+        <div class="hero-main">
+          <p class="eyebrow">Live island status</p>
+          <div class="verdict" id="trajectory">
+            <span class="verdict-dot"></span>
+            <span class="verdict-text">Analyzing…</span>
           </div>
-          <div class="gauge" id="demGauge">
-            <div class="gauge-num" id="demNum">--</div>
-            <div class="gauge-label">DEMAND <span class="unit">kW</span></div>
-          </div>
-          <div class="gauge battery-gauge">
-            <div class="battery-icon">
-              <div class="battery-fill" id="batteryFill"></div>
-            </div>
-            <div class="gauge-num" id="batteryPct">--</div>
-            <div class="gauge-label">BATTERY</div>
-          </div>
-        </div>
+          <p class="verdict-note" id="verdictNote">Watching generation, storage and demand in real time.</p>
 
-        <!-- Stability panel -->
-        <div class="card stability">
-          <div class="card-title">ENERGY-BALANCE TRAJECTORY</div>
-          <div class="stability-row">
-            <div class="stab-cell">
-              <div class="stab-value" id="netKv">--</div>
-              <div class="stab-label">NET POWER <span class="unit">kW</span></div>
+          <div class="hero-stats">
+            <div class="stat">
+              <div class="stat-num" id="netValue">—</div>
+              <div class="stat-label">Net power</div>
             </div>
-            <div class="stab-cell">
-              <div class="stab-value" id="velValue">--</div>
-              <div class="stab-label">VELOCITY <span class="unit">kW/s</span></div>
+            <div class="stat">
+              <div class="stat-num" id="velValue">—</div>
+              <div class="stat-label">Velocity</div>
             </div>
-            <div class="stab-cell">
-              <div class="stab-value" id="accelValue">--</div>
-              <div class="stab-label">ACCELERATION <span class="unit">kW/s²</span></div>
+            <div class="stat">
+              <div class="stat-num" id="accelValue">—</div>
+              <div class="stat-label">Acceleration</div>
             </div>
           </div>
-          <div class="trajectory" id="trajectory">
-            <div class="traj-text">Reading the live energy balance…</div>
+        </div>
+
+        <div class="hero-cards">
+          <div class="metric-card">
+            <div class="metric-top"><span class="metric-label">Generation</span><span class="metric-unit">kW</span></div>
+            <div class="metric-value" id="genValue">—</div>
+            <div class="metric-sub" id="genSub">Solar · Wind</div>
           </div>
-          <div class="traj-note">
-            Nimbus watches <em>where</em> the energy balance is heading, not just how much is left in the battery.
+          <div class="metric-card">
+            <div class="metric-top"><span class="metric-label">Demand</span><span class="metric-unit">kW</span></div>
+            <div class="metric-value" id="demValue">—</div>
+            <div class="metric-sub" id="demSub">4 resources</div>
           </div>
-        </div>
-      </div>
-
-      <!-- Center: energy chart -->
-      <div class="col col-center">
-        <div class="card chart-card">
-          <div class="card-title">LIVE ISLAND ENERGY</div>
-          <canvas id="energyChart" height="250"></canvas>
-        </div>
-
-        <!-- Resource control panel -->
-        <div class="card resources">
-          <div class="card-title">RESOURCE CONTROL</div>
-          <div id="resourceList" class="resource-list"></div>
-        </div>
-      </div>
-
-      <!-- Right column -->
-      <div class="col col-right">
-        <!-- Controller switcher -->
-        <div class="card">
-          <div class="card-title">CONTROLLER</div>
-          <div class="controller-switch" id="controllerSwitch">
-            <button class="ctrl-btn" data-ctrl="naive">NAIVE</button>
-            <button class="ctrl-btn" data-ctrl="reactive">REACTIVE</button>
-            <button class="ctrl-btn active" data-ctrl="nimbus">NIMBUS</button>
-          </div>
-          <div class="ctrl-desc" id="controllerDesc"></div>
-        </div>
-
-        <!-- Event replay -->
-        <div class="card">
-          <div class="card-title">EVENT REPLAY</div>
-          <div id="replayArea" class="replay-area">
-            <div class="replay-empty">Run an event, then replay it under any controller for a fair comparison.</div>
+          <div class="metric-card battery">
+            <div class="metric-top"><span class="metric-label">Battery</span><span class="metric-unit">stored</span></div>
+            <div class="battery-row">
+              <div class="ring" id="batteryRing" style="--pct:0%">
+                <div class="ring-inner"><span id="batteryPct">0%</span></div>
+              </div>
+              <div class="battery-side">
+                <div class="battery-kwh" id="batteryKwh">— kWh</div>
+                <div class="battery-rate" id="batteryRate">charging</div>
+              </div>
+            </div>
           </div>
         </div>
+      </section>
 
-        <!-- WHY? panel -->
-        <div class="card why">
-          <div class="card-title">NIMBUS DECISION</div>
-          <div id="whyPanel" class="why-panel">
-            <div class="why-empty">Waiting for a decision…</div>
+      <!-- =========================== ENERGY =========================== -->
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Energy</h2>
+            <p class="panel-sub">Live generation, demand and net balance</p>
           </div>
         </div>
+        <div class="chart-wrap">
+          <canvas id="energyChart" height="260"></canvas>
+        </div>
+      </section>
 
-        <!-- Evaluation -->
-        <div class="card">
-          <div class="card-title eval-head">
-            <span>QUANTITATIVE EVALUATION</span>
-            <button class="btn small" id="evalBtn">RUN 120-SCENARIO EVAL</button>
-          </div>
-          <div id="evalPanel">
-            <div class="eval-empty">Run the automated evaluation to compare Naive vs Reactive vs Nimbus across randomized disturbances.</div>
-          </div>
+      <!-- ========================== LOWER GRID ========================= -->
+      <section class="lower-grid">
+
+        <div class="lower-col">
+          <!-- Resources -->
+          <section class="panel">
+            <div class="panel-head"><h2 class="panel-title">Resources</h2></div>
+            <div class="resource-list" id="resourceList"></div>
+          </section>
+
+          <!-- Why -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 class="panel-title">Why Nimbus acted</h2>
+              <span class="tag" id="whyController">Nimbus</span>
+            </div>
+            <div class="why-panel" id="whyPanel">
+              <p class="placeholder">Decisions will be explained here, in plain language.</p>
+            </div>
+          </section>
         </div>
 
-        <!-- Manual sliders -->
-        <div class="card sliders">
-          <div class="card-title">MANUAL OVERRIDES</div>
-          <div id="sliders"></div>
-          <button class="btn ghost small" id="clearSliders">⟲ CLEAR OVERRIDES</button>
-        </div>
-      </div>
-    </div>
+        <div class="lower-col">
+          <!-- Disturbances -->
+          <section class="panel">
+            <div class="panel-head"><h2 class="panel-title">Inject a disturbance</h2></div>
+            <div class="event-grid">
+              <button class="event-btn" data-event="storm"><span class="ev-icon">⛈</span><span class="ev-name">Storm</span></button>
+              <button class="event-btn" data-event="cloud_cover"><span class="ev-icon">☁️</span><span class="ev-name">Cloud</span></button>
+              <button class="event-btn" data-event="wind_drop"><span class="ev-icon">🌬</span><span class="ev-name">Wind drop</span></button>
+              <button class="event-btn" data-event="tourist_surge"><span class="ev-icon">🌴</span><span class="ev-name">Surge</span></button>
+              <button class="event-btn" data-event="water_emergency"><span class="ev-icon">💧</span><span class="ev-name">Water</span></button>
+              <button class="event-btn" data-event="compound_crisis"><span class="ev-icon">⚠️</span><span class="ev-name">Crisis</span></button>
+            </div>
+          </section>
 
-    <footer class="foot">
-      Prototype autonomous energy-management system. The island physics and environment are <strong>simulated</strong> — this is not real grid control hardware.
-    </footer>
+          <!-- Comparison / Replay -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 class="panel-title">Compare &amp; replay</h2>
+              <span class="tag">same disturbance</span>
+            </div>
+            <div class="replay-area" id="replayArea">
+              <p class="placeholder">Run a disturbance, then switch controllers to replay it identically.</p>
+            </div>
+            <div class="ctrl-desc" id="controllerDesc"></div>
+          </section>
+
+          <!-- Evaluation -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 class="panel-title">Evaluation</h2>
+              <button class="ghost-btn" id="evalBtn">Run 120 scenarios</button>
+            </div>
+            <div id="evalPanel">
+              <p class="placeholder">Automatically compare Naive, Reactive and Nimbus across randomized disturbances.</p>
+            </div>
+          </section>
+
+          <!-- Manual overrides -->
+          <section class="panel">
+            <div class="panel-head">
+              <h2 class="panel-title">Manual overrides</h2>
+              <button class="ghost-btn small" id="clearSliders">Clear</button>
+            </div>
+            <div class="sliders" id="sliders"></div>
+          </section>
+        </div>
+
+      </section>
+
+      <footer class="foot">
+        Prototype autonomous energy-management system · island physics are <strong>simulated</strong>, not real grid control
+      </footer>
+    </main>
   </div>
 
   <script src="/static/chart.umd.min.js"></script>
