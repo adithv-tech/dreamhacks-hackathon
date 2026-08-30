@@ -42,8 +42,9 @@ function connect() {
   ws.onmessage = (ev) => {
     try {
       const d = JSON.parse(ev.data);
-      if (d.telemetry) handleTelemetry(d.telemetry);
-      if (d.decision) renderWhy(d.decision);
+      // Each concern is isolated so one failure never blocks the others.
+      if (d.telemetry) { try { handleTelemetry(d.telemetry); } catch (e) { console.error('telemetry', e); } }
+      if (d.decision) { try { renderWhy(d.decision); } catch (e) { console.error('decision', e); } }
     } catch (e) { /* ignore malformed frame */ }
   };
   window._ws = ws;
@@ -168,8 +169,14 @@ function stateLabel(s) {
 
 /* ------------------------------- chart -------------------------------- */
 function makeChart() {
-  const ctx = $('#energyChart').getContext('2d');
-  state.chart = new Chart(ctx, {
+  // If the chart library or a canvas is unavailable, fail gracefully instead of
+  // breaking the rest of the dashboard.
+  if (typeof Chart === 'undefined') return;
+  const canvas = $('#energyChart');
+  if (!canvas || !canvas.getContext) return;
+  const ctx = canvas.getContext('2d');
+  try {
+    state.chart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: [],
@@ -191,7 +198,12 @@ function makeChart() {
         y: { ticks: { color: '#a1a1a6', font: { size: 11 }, padding: 6 }, grid: { color: 'rgba(0,0,0,0.06)' }, border: { display: false }, title: { display: false } },
       },
     },
-  });
+    });
+  } catch (e) {
+    // Chart could not be built (e.g. canvas unavailable); leave it null so
+    // updateChart() is a safe no-op and the rest of the UI keeps working.
+    state.chart = null;
+  }
 }
 
 function updateChart() {
@@ -378,14 +390,12 @@ function renderEval(res) {
 
 /* -------------------------------- boot -------------------------------- */
 function boot() {
-  initEvents();
-  initController();
-  initReset();
-  initSliders();
-  initEval();
-  makeChart();
-  renderReplay();
-  syncSegUI();
+  // Each initializer is isolated so a failure in one (e.g. the chart) never
+  // prevents the live telemetry connection from starting.
+  [initEvents, initController, initReset, initSliders, initEval,
+   makeChart, renderReplay, syncSegUI].forEach((fn) => {
+    try { fn(); } catch (e) { console.error('init', fn.name, e); }
+  });
   connect();
 }
 
