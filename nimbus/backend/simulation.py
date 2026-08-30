@@ -97,23 +97,29 @@ class IslandSim:
         self.current_event_code = None
 
     def _update_event(self):
+        """Apply the active event's multipliers + demand offsets, then overlay
+        manual slider overrides on top. Runs every tick so the manual demand
+        sliders work even when no event is active."""
+        offsets = {}
         if self.event is None:
             self.solar_mult, self.wind_mult = 1.0, 1.0
-            return
-        elapsed = self.t - self.event_t0
-        solar_mult, wind_mult, offsets = self.event.effects_at(elapsed)
-        self.solar_mult = solar_mult
-        self.wind_mult = wind_mult
-        # manual demand sliders override event offsets for those resources
-        merged = dict(offsets)
+        else:
+            elapsed = self.t - self.event_t0
+            solar_mult, wind_mult, ev_offsets = self.event.effects_at(elapsed)
+            self.solar_mult = solar_mult
+            self.wind_mult = wind_mult
+            offsets = dict(ev_offsets)
+            if self.event.is_finished(elapsed):
+                self.clear_event()
+        # Manual demand overrides are absolute kW targets; they take
+        # precedence over any event demand offsets.
         for key, rid in (("residential", "residential"),
                          ("desalination", "desalination"),
                          ("resort", "resort")):
             if self.manual[key] is not None:
-                merged[rid] = self.manual[key]
-        self.resources.apply_demand_offsets(merged)
-        if self.event.is_finished(elapsed):
-            self.clear_event()
+                res = self.resources[rid]
+                offsets[rid] = self.manual[key] - res.defn.base_demand_kw
+        self.resources.apply_demand_offsets(offsets)
 
     # -------------------------------------------------------------- battery
     def _battery_step(self, net_kw, dt):

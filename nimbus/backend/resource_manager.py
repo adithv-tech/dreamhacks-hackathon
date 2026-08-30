@@ -82,9 +82,10 @@ class ResourceManager:
             r.reset()
 
     def apply_demand_offsets(self, offsets: Dict[str, float]):
-        for rid, off in offsets.items():
-            if rid in self.resources:
-                self.resources[rid].demand_offset_kw = off
+        # Any resource not mentioned is reset to no offset, so clearing
+        # overrides/ending an event always returns demand to its base level.
+        for rid, res in self.resources.items():
+            res.demand_offset_kw = offsets.get(rid, 0.0)
 
     @property
     def total_demand_kw(self) -> float:

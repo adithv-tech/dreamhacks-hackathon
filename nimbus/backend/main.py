@@ -161,6 +161,10 @@ async def snapshot():
 async def inject_event(req: EventRequest):
     if req.code not in EVENT_CODES:
         return {"ok": False, "error": f"unknown event {req.code}"}
+    # Clear any manual slider overrides first so the disturbance's effect on
+    # generation/demand is always visible rather than masked by the overrides.
+    for k in STATE["sim"].manual:
+        STATE["sim"].manual[k] = None
     STATE["sim"].inject_event(create_event(req.code, severity=req.severity))
     return {"ok": True, "event": req.code}
 

@@ -189,12 +189,22 @@ function renderWhy(decision) {
 }
 
 /* ------------------------------------------------------------------ events */
+function resetSliderUI() {
+  document.querySelectorAll('#sliders input[type=range]').forEach((i) => {
+    i.value = 0;
+    $(`[data-val="${i.dataset.key}"]`).textContent = 'auto';
+  });
+}
+
 function initEvents() {
   document.querySelectorAll('.btn.event').forEach((btn) => {
     btn.addEventListener('click', () => {
       const code = btn.dataset.event;
       state.lastEvent = { code, name: btn.textContent.trim() };
       renderReplay();
+      // Manual overrides are cleared server-side on event injection; also
+      // reset the slider UI so it reflects "auto" again.
+      resetSliderUI();
       api('/api/event', 'POST', { code }).then(() => {});
     });
   });
