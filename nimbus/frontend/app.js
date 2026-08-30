@@ -16,6 +16,19 @@ const state = {
   lastEvent: null,
 };
 
+/* ----------------------------- icon helper ----------------------------- */
+/* Consistent Lucide-style stroke icons (self-hosted paths). */
+const ICON_PATHS = {
+  'shield-plus': '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M9 12h6"/><path d="M12 9v6"/>',
+  droplet: '<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>',
+  home: '<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  palmtree: '<path d="M13 8c0-2.76-2.46-5-5.5-5S2 5.24 2 8h2l1-1 1 1h4"/><path d="M13 7.14A5.82 5.82 0 0 1 16.5 6c3.04 0 5.5 2.24 5.5 5h-3l-1-1-1 1h-3"/><path d="M5.89 9.71c-2.15 2.15-2.3 5.47-.35 7.43l4.24-4.25.7-.7.71-.71 2.12-2.12c-1.95-1.96-5.27-1.8-7.42.35"/><path d="M11 15.5c.5 2.5-.17 4.5-1 6.5h4c2-5.5-.5-12-1-14"/>',
+};
+function icon(name, size = 18) {
+  const path = ICON_PATHS[name];
+  return `<svg class="ic" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+}
+
 /* ------------------------------- setup -------------------------------- */
 function wsUrl() {
   const p = location.protocol === 'https:' ? 'wss' : 'ws';
@@ -123,20 +136,20 @@ function signed(v, dec) {
 
 function colorNum(sel, v, lo, mid) {
   const el = $(sel);
-  el.style.color = v < lo ? 'var(--red)' : v < mid ? 'var(--amber)' : 'var(--text)';
+  el.style.color = v < lo ? 'var(--red-ink)' : v < mid ? 'var(--amber-ink)' : 'var(--text-1)';
 }
 
 /* ------------------------------- resources ----------------------------- */
 function renderResources(resources) {
-  const colors = { hospital: '#30d158', desalination: '#40c8ff', residential: '#0a84ff', resort: '#ffd60a' };
-  const icons = { hospital: '🏥', desalination: '💧', residential: '🏠', resort: '🌴' };
+  const colors = { hospital: '#30d158', desalination: '#0a84ff', residential: '#8a5cf6', resort: '#ff9f0a' };
+  const icons = { hospital: 'shield-plus', desalination: 'droplet', residential: 'home', resort: 'palmtree' };
   const crit = { hospital: 'Critical', desalination: 'Very high', residential: 'Medium', resort: 'Lowest' };
   $('#resourceList').innerHTML = resources.map((r) => {
     const cls = (r.state || 'normal').toLowerCase();
     return `
       <div class="resource">
         <div class="resource-head">
-          <div class="resource-name">${icons[r.id]} ${r.name}</div>
+          <div class="resource-name">${icon(icons[r.id] || 'home')} ${r.name}</div>
           <div class="resource-pct">${Math.round(r.operating_pct)}%</div>
         </div>
         <div class="resource-bar"><div class="resource-fill" style="width:${r.operating_pct}%;background:${colors[r.id]}"></div></div>
@@ -161,9 +174,9 @@ function makeChart() {
     data: {
       labels: [],
       datasets: [
-        { label: 'Solar', data: [], borderColor: '#ffd60a', borderWidth: 2, pointRadius: 0, tension: .35, fill: false },
+        { label: 'Solar', data: [], borderColor: '#ff9f0a', borderWidth: 2, pointRadius: 0, tension: .35, fill: false },
         { label: 'Wind', data: [], borderColor: '#64d2ff', borderWidth: 2, pointRadius: 0, tension: .35, fill: false },
-        { label: 'Demand', data: [], borderColor: '#ff8fa3', borderWidth: 2, pointRadius: 0, tension: .35, fill: false },
+        { label: 'Demand', data: [], borderColor: '#ff5f6d', borderWidth: 2, pointRadius: 0, tension: .35, fill: false },
         { label: 'Net balance', data: [], borderColor: '#30d158', borderWidth: 2.5, pointRadius: 0, tension: .35, fill: false },
       ],
     },
@@ -171,11 +184,11 @@ function makeChart() {
       responsive: true, maintainAspectRatio: false, animation: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
-        legend: { labels: { color: 'rgba(255,255,255,0.55)', boxWidth: 8, boxHeight: 8, usePointStyle: true, padding: 18, font: { size: 12, weight: 500 } } },
+        legend: { labels: { color: '#86868b', boxWidth: 8, boxHeight: 8, usePointStyle: true, padding: 18, font: { size: 12, weight: 500 } } },
       },
       scales: {
-        x: { ticks: { color: 'rgba(255,255,255,0.35)', maxTicksLimit: 10, font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.05)' }, border: { display: false } },
-        y: { ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 11 }, padding: 6 }, grid: { color: 'rgba(255,255,255,0.06)' }, border: { display: false }, title: { display: false } },
+        x: { ticks: { color: '#a1a1a6', maxTicksLimit: 10, font: { size: 11 } }, grid: { color: 'rgba(0,0,0,0.05)' }, border: { display: false } },
+        y: { ticks: { color: '#a1a1a6', font: { size: 11 }, padding: 6 }, grid: { color: 'rgba(0,0,0,0.06)' }, border: { display: false }, title: { display: false } },
       },
     },
   });

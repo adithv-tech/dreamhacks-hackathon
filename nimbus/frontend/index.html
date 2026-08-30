@@ -13,12 +13,10 @@
     <header class="nav">
       <div class="nav-brand">
         <div class="brand-mark">
-          <svg viewBox="0 0 36 36" width="26" height="26" fill="none">
-            <defs>
-              <linearGradient id="ng" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="#40c8ff"/><stop offset="100%" stop-color="#0a84ff"/>
-              </linearGradient>
-            </defs>
+          <svg class="brand-svg" viewBox="0 0 36 36" width="26" height="26" fill="none" aria-hidden="true">
+            <defs><linearGradient id="ng" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#40c8ff"/><stop offset="100%" stop-color="#0a84ff"/>
+            </linearGradient></defs>
             <circle cx="18" cy="18" r="14" stroke="url(#ng)" stroke-width="2"/>
             <circle cx="18" cy="18" r="6.5" fill="url(#ng)"/>
             <path d="M18 3.5v4M18 28.5v4M3.5 18h4M28.5 18h4" stroke="url(#ng)" stroke-width="2" stroke-linecap="round"/>
@@ -45,7 +43,7 @@
           <button class="seg-btn active" data-ctrl="nimbus">Nimbus</button>
         </div>
         <button class="reset-btn" id="resetBtn" title="Reset to a stable island">
-          <svg viewBox="0 0 16 16" width="15" height="15" fill="none"><path d="M8 2a6 6 0 1 0 5.2 3M8 2v3M8 2l3-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
           <span>Reset</span>
         </button>
       </div>
@@ -98,7 +96,7 @@
               </div>
               <div class="battery-side">
                 <div class="battery-kwh" id="batteryKwh">— kWh</div>
-                <div class="battery-rate" id="batteryRate">charging</div>
+                <div class="battery-rate" id="batteryRate">—</div>
               </div>
             </div>
           </div>
@@ -106,7 +104,7 @@
       </section>
 
       <!-- =========================== ENERGY =========================== -->
-      <section class="panel">
+      <section class="panel chart-panel">
         <div class="panel-head">
           <div>
             <h2 class="panel-title">Energy</h2>
@@ -121,40 +119,56 @@
       <!-- ========================== LOWER GRID ========================= -->
       <section class="lower-grid">
 
+        <!-- Left column -->
         <div class="lower-col">
-          <!-- Resources -->
           <section class="panel">
             <div class="panel-head"><h2 class="panel-title">Resources</h2></div>
             <div class="resource-list" id="resourceList"></div>
           </section>
 
-          <!-- Why -->
           <section class="panel">
             <div class="panel-head">
               <h2 class="panel-title">Why Nimbus acted</h2>
               <span class="tag" id="whyController">Nimbus</span>
             </div>
             <div class="why-panel" id="whyPanel">
-              <p class="placeholder">Decisions will be explained here, in plain language.</p>
+              <p class="placeholder">Decisions are explained here, in plain language.</p>
             </div>
           </section>
         </div>
 
+        <!-- Right column -->
         <div class="lower-col">
-          <!-- Disturbances -->
           <section class="panel">
             <div class="panel-head"><h2 class="panel-title">Inject a disturbance</h2></div>
             <div class="event-grid">
-              <button class="event-btn" data-event="storm"><span class="ev-icon">⛈</span><span class="ev-name">Storm</span></button>
-              <button class="event-btn" data-event="cloud_cover"><span class="ev-icon">☁️</span><span class="ev-name">Cloud</span></button>
-              <button class="event-btn" data-event="wind_drop"><span class="ev-icon">🌬</span><span class="ev-name">Wind drop</span></button>
-              <button class="event-btn" data-event="tourist_surge"><span class="ev-icon">🌴</span><span class="ev-name">Surge</span></button>
-              <button class="event-btn" data-event="water_emergency"><span class="ev-icon">💧</span><span class="ev-name">Water</span></button>
-              <button class="event-btn" data-event="compound_crisis"><span class="ev-icon">⚠️</span><span class="ev-name">Crisis</span></button>
+              <button class="event-btn" data-event="storm">
+                <span class="ev-icon"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973"/><path d="m13 12-3 5h4l-3 5"/></svg></span>
+                <span class="ev-name">Storm</span>
+              </button>
+              <button class="event-btn" data-event="cloud_cover">
+                <span class="ev-icon"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg></span>
+                <span class="ev-name">Cloud</span>
+              </button>
+              <button class="event-btn" data-event="wind_drop">
+                <span class="ev-icon"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.8 19.6A2 2 0 1 0 14 16H2"/><path d="M17.5 8a2.5 2.5 0 1 1 2 4H2"/><path d="M9.8 4.4A2 2 0 1 1 11 8H2"/></svg></span>
+                <span class="ev-name">Wind drop</span>
+              </button>
+              <button class="event-btn" data-event="tourist_surge">
+                <span class="ev-icon"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 8c0-2.76-2.46-5-5.5-5S2 5.24 2 8h2l1-1 1 1h4"/><path d="M13 7.14A5.82 5.82 0 0 1 16.5 6c3.04 0 5.5 2.24 5.5 5h-3l-1-1-1 1h-3"/><path d="M5.89 9.71c-2.15 2.15-2.3 5.47-.35 7.43l4.24-4.25.7-.7.71-.71 2.12-2.12c-1.95-1.96-5.27-1.8-7.42.35"/><path d="M11 15.5c.5 2.5-.17 4.5-1 6.5h4c2-5.5-.5-12-1-14"/></svg></span>
+                <span class="ev-name">Surge</span>
+              </button>
+              <button class="event-btn" data-event="water_emergency">
+                <span class="ev-icon"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg></span>
+                <span class="ev-name">Water</span>
+              </button>
+              <button class="event-btn" data-event="compound_crisis">
+                <span class="ev-icon"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
+                <span class="ev-name">Crisis</span>
+              </button>
             </div>
           </section>
 
-          <!-- Comparison / Replay -->
           <section class="panel">
             <div class="panel-head">
               <h2 class="panel-title">Compare &amp; replay</h2>
@@ -166,7 +180,6 @@
             <div class="ctrl-desc" id="controllerDesc"></div>
           </section>
 
-          <!-- Evaluation -->
           <section class="panel">
             <div class="panel-head">
               <h2 class="panel-title">Evaluation</h2>
@@ -177,7 +190,6 @@
             </div>
           </section>
 
-          <!-- Manual overrides -->
           <section class="panel">
             <div class="panel-head">
               <h2 class="panel-title">Manual overrides</h2>
